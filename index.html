@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>踏月留香枕星 · 帮会管理</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f2f3f5;
+    --card: #ffffff;
+    --text: #1f1f1f;
+    --text-2: #374151;
+    --text-3: #6b7280;
+    --border: #e5e7eb;
+    --placeholder: #9ca3af;
+    --primary: #2b2b2b;
+    --primary-hover: #1a1a1a;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 28px 20px 48px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; }
+
+  /* 顶部栏 */
+  .header {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .header .brand { display: flex; align-items: center; gap: 12px; }
+  .header .brand .logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px;
+  }
+  .header .brand h1 { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+  .header .brand p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .header .user { display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 14px; }
+
+  /* 导航 Tab */
+  .nav {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .nav button {
+    flex: 1 1 108px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .18s ease;
+    white-space: nowrap;
+  }
+  .nav button:hover { border-color: var(--primary); color: var(--primary); }
+  .nav button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  /* 概览卡片 */
+  .overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+  }
+  .stat-card .label { font-size: 13px; color: var(--text-3); margin-bottom: 10px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; line-height: 1.2; }
+  .stat-card .sub { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+
+  /* 内容面板 */
+  .panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    display: none;
+  }
+  .panel.active { display: block; }
+  .panel-title { font-size: 20px; font-weight: 700; margin-bottom: 22px; }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .panel-head .panel-title { margin-bottom: 0; }
+  .panel-hint { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+  /* 表单 */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 22px;
+  }
+  .form-item { display: flex; flex-direction: column; gap: 8px; }
+  .form-item label { font-size: 14px; color: var(--text-2); }
+  .form-item input, .form-item select {
+    width: 220px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  .form-item input::placeholder { color: var(--placeholder); }
+  .form-item input:focus, .form-item select:focus { border-color: var(--primary); }
+
+  .btn {
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 28px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all .18s ease;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-ghost { background: #fff; color: var(--text-2); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* 表格 */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th {
+    text-align: left;
+    color: var(--text-3);
+    font-weight: 500;
+    background: #f9fafb;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #f2f3f5;
+    color: var(--text-2);
+  }
+  .link-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--primary); font-size: 13px; margin-right: 12px;
+  }
+  .link-btn.danger { color: #b91c1c; }
+
+  /* 职业统计 */
+  .job-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .job-stat {
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 15px 18px;
+  }
+  .job-stat .k { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .job-stat .v { font-size: 22px; font-weight: 700; }
+  .job-stat .v small { font-size: 12px; font-weight: 500; color: var(--text-3); margin-left: 5px; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 20px; }
+  .bar-item .bar-head {
+    display: flex; justify-content: space-between;
+    font-size: 14px; color: var(--text-2); margin-bottom: 8px;
+  }
+  .bar-item .bar-head .job-name { display: flex; align-items: center; }
+  .bar-item .bar-head .job-name em {
+    font-style: normal; font-size: 12px; font-weight: 500;
+    color: var(--placeholder); margin-right: 9px;
+  }
+  .bar-item .bar-head .num { color: var(--text-3); }
+  .bar-item .bar-head .num b { color: var(--text); font-weight: 700; }
+  .bar-track { height: 10px; background: #f2f3f5; border-radius: 999px; overflow: hidden; }
+  .bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 999px;
+    transition: width .5s cubic-bezier(.2, .7, .3, 1);
+  }
+
+  /* 分堂人员 */
+  .hall-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .hall-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    background: #fff;
+  }
+  .hall-card-wide { grid-column: 1 / -1; }
+  .hall-card .hall-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px;
+  }
+  .hall-card .hall-head h3 { font-size: 16px; font-weight: 700; }
+  .hall-card .hall-head .count { font-size: 13px; color: var(--text-3); }
+  .hall-card .master { font-size: 13px; color: var(--text-3); margin-bottom: 14px; }
+  .hall-card .members { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hall-card .members span {
+    background: #f2f3f5; border-radius: 6px;
+    padding: 5px 12px; font-size: 13px; color: var(--text-2);
+  }
+  .hall-card .members span.lead { background: var(--primary); color: #fff; }
+  .hall-card:not(.show-all) .members > span.extra { display: none; }
+  .hall-toggle {
+    margin-top: 14px;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--text-3);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .hall-toggle:hover { color: var(--primary); }
+
+  .member-groups {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .group-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  /* 帮会规则 */
+  .rule-banner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--primary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .rule-fact { padding: 17px 22px; border-right: 1px solid rgba(255, 255, 255, .12); }
+  .rule-fact:last-child { border-right: none; }
+  .rule-fact span { display: block; font-size: 12px; color: rgba(255, 255, 255, .55); margin-bottom: 5px; }
+  .rule-fact strong { font-size: 16px; font-weight: 600; color: #fff; }
+
+  .rule-list { display: flex; flex-direction: column; gap: 14px; }
+  .rule-item {
+    display: flex; gap: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+  }
+  .rule-item .idx {
+    flex: none; width: 28px; height: 28px; border-radius: 8px;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+  .rule-item .rule-body h4 { font-size: 15px; margin-bottom: 6px; }
+  .rule-item .rule-body p { font-size: 13px; color: var(--text-3); line-height: 1.7; }
+  .rule-foot { margin-top: 18px; text-align: center; font-size: 12px; color: var(--text-3); }
+
+  .panel-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+
+  /* 帮战数据 */
+  .hidden { display: none !important; }
+  .war-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .war-filter .form-item input { width: 190px; }
+  .war-date-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+  .date-chip {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-2);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .18s ease;
+  }
+  .date-chip span { color: var(--text-3); font-size: 12px; margin-left: 5px; }
+  .date-chip:hover { border-color: var(--primary); }
+  .date-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .date-chip.active span { color: rgba(255, 255, 255, .62); }
+
+  .war-day { margin-bottom: 24px; }
+  .war-day:last-child { margin-bottom: 0; }
+  .war-day-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .war-day-head h3 { font-size: 15px; font-weight: 700; }
+  .war-day-head span { font-size: 12px; color: var(--text-3); }
+
+  .war-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .war-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    background: #fff;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .war-card:hover {
+    transform: translateY(-2px);
+    border-color: #cfd3d8;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+  }
+  .war-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .war-time { font-size: 12px; color: var(--text-3); }
+  .war-order {
+    font-size: 11px;
+    color: var(--text-3);
+    background: #f2f3f5;
+    border-radius: 999px;
+    padding: 3px 9px;
+  }
+  .war-card h3 { font-size: 17px; font-weight: 700; margin: 12px 0 5px; }
+  .war-card h3 em {
+    font-style: normal;
+    color: var(--placeholder);
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0 5px;
+  }
+  .war-people { font-size: 12px; color: var(--text-3); }
+  .war-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 15px 0;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .war-card-stats strong { display: block; font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+  .war-card-stats span { font-size: 11px; color: var(--text-3); }
+  .war-open {
+    margin-top: auto;
+    align-self: flex-start;
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--primary);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .war-open span { margin-left: 4px; transition: margin-left .18s ease; }
+  .war-open:hover span { margin-left: 8px; }
+  .war-empty {
+    padding: 44px 20px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-3);
+    font-size: 13px;
+  }
+  .war-empty strong { display: block; color: var(--text-2); font-size: 15px; margin-bottom: 6px; }
+
+  .war-back {
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--text-3);
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 16px;
+  }
+  .war-back:hover { color: var(--primary); }
+  .war-detail-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .war-kicker { font-size: 12px; color: var(--text-3); margin-bottom: 8px; }
+  .war-detail-head h3 { font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+  .war-detail-head h3 em {
+    font-style: normal;
+    font-size: 12px;
+    color: var(--placeholder);
+    font-weight: 500;
+    margin: 0 9px;
+  }
+  .war-detail-head p { font-size: 13px; color: var(--text-3); margin-top: 7px; }
+  .war-detail-badge {
+    flex: none;
+    font-size: 12px;
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+
+  .war-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .war-summary-label { grid-column: 1 / -1; font-size: 12px; color: var(--text-3); margin-bottom: -4px; }
+  .war-sum-item {
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+  }
+  .war-sum-item span { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .war-sum-item strong { font-size: 22px; font-weight: 700; }
+
+  .war-detail-grid {
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .war-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    background: #fff;
+  }
+  .war-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .war-panel-head h4 { font-size: 15px; font-weight: 700; }
+  .war-panel-head span { font-size: 12px; color: var(--text-3); }
+
+  .war-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-3); margin-bottom: 15px; }
+  .war-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+  .war-legend .a { background: var(--primary); }
+  .war-legend .b { background: #c7cbd1; }
+  .war-compare-row { margin-bottom: 13px; }
+  .war-compare-row:last-child { margin-bottom: 0; }
+  .war-compare-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+  .war-compare-values b { font-size: 14px; color: var(--text); font-weight: 700; }
+  .war-compare-values .war-metric { text-align: center; flex: 1; }
+  .war-compare-track {
+    display: flex;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #f2f3f5;
+  }
+  .war-compare-track .a { background: var(--primary); }
+  .war-compare-track .b { background: #c7cbd1; }
+
+  .war-mvp-list { display: flex; flex-direction: column; }
+  .war-mvp-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .war-mvp-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .war-mvp-item:first-child { padding-top: 0; }
+  .war-mvp-label {
+    flex: none;
+    width: 50px;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .war-mvp-name { font-size: 14px; font-weight: 600; }
+  .war-mvp-value { margin-left: auto; font-size: 12px; color: var(--text-3); text-align: right; }
+
+  .war-team-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .war-team-tabs button {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-2);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .war-team-tabs button span { color: var(--text-3); font-size: 11px; margin-left: 4px; }
+  .war-team-tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .war-team-tabs button.active span { color: rgba(255, 255, 255, .62); }
+
+  .war-table-wrap {
+    max-height: 520px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #c7cbd1 transparent;
+  }
+  .war-table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+  .war-table-wrap::-webkit-scrollbar-thumb { background: #c7cbd1; border-radius: 999px; }
+  .war-table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .war-table { width: 100%; min-width: 1120px; border-collapse: collapse; font-size: 13px; }
+  .war-table th, .war-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    text-align: left;
+  }
+  .war-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f9fafb;
+    color: var(--text-3);
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .war-table th.sortable { cursor: pointer; user-select: none; }
+  .war-table th.sortable:hover { color: var(--primary); }
+  .war-table th.num { text-align: right; }
+  .war-table tbody td { color: var(--text-2); }
+  .war-table tbody tr:last-child td { border-bottom: none; }
+  .war-table tbody tr:hover td { background: #fafafa; }
+  .war-table th:first-child, .war-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #fff;
+    min-width: 108px;
+  }
+  .war-table thead th:first-child { z-index: 3; background: #f9fafb; }
+  .war-table tbody tr:hover td:first-child { background: #fafafa; }
+  .war-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .war-note { margin-top: 10px; font-size: 12px; color: var(--text-3); }
+
+  /* 本周建议 */
+  .advice-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    margin-bottom: 18px;
+  }
+  .advice-avatar {
+    flex: none;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700;
+  }
+  .advice-hero h3 { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+  .advice-hero p { font-size: 13px; color: rgba(255, 255, 255, .62); }
+  .advice-count {
+    margin-left: auto;
+    flex: none;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .8);
+  }
+  .advice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .advice-item {
+    display: flex;
+    gap: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    background: #fff;
+  }
+  .advice-idx {
+    flex: none;
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: #f2f3f5;
+    color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .advice-item p { font-size: 14px; line-height: 1.75; color: var(--text-2); }
+  .advice-item strong { color: var(--text); font-weight: 600; }
+  .nowrap { white-space: nowrap; }
+  .advice-closing {
+    margin-top: 18px;
+    padding: 22px;
+    text-align: center;
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .advice-closing strong {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .advice-closing p { font-size: 14px; color: var(--text-3); }
+
+  @media (max-width: 900px) {
+    .nav { display: grid; grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .overview { grid-template-columns: repeat(2, 1fr); }
+    .hall-grid { grid-template-columns: 1fr; }
+    .hall-card-wide { grid-column: auto; }
+    .member-groups { grid-template-columns: 1fr; }
+    .form-item input, .form-item select { width: 100%; }
+    .form-item { width: 100%; }
+    .rule-banner { grid-template-columns: 1fr; }
+    .rule-fact { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+    .rule-fact:last-child { border-bottom: none; }
+    .war-cards { grid-template-columns: repeat(2, 1fr); }
+    .war-detail-grid { grid-template-columns: 1fr; }
+    .advice-grid { grid-template-columns: 1fr; }
+    .war-date-chips { margin-left: 0; width: 100%; }
+  }
+  @media (max-width: 600px) {
+    body { padding: 16px 12px 36px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .panel { padding: 22px 18px; }
+    .job-summary { grid-template-columns: 1fr; }
+    .panel-head { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .war-cards { grid-template-columns: 1fr; }
+    .war-summary { grid-template-columns: repeat(2, 1fr); }
+    .war-detail-head { align-items: flex-start; flex-direction: column; }
+    .war-detail-head h3 { font-size: 22px; }
+    .advice-hero { align-items: flex-start; flex-wrap: wrap; }
+    .advice-count { margin-left: 62px; }
+  }
+  @media (max-width: 620px) {
+    .nav { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 440px) {
+    .nav { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .overview { grid-template-columns: 1fr; }
+    .stat-card .value { font-size: 26px; }
+    .war-summary { grid-template-columns: 1fr; }
+    .war-filter .form-item input { width: 100%; }
+    .advice-count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 顶部栏 -->
+  <header class="header">
+    <div class="brand">
+      <div class="logo">星</div>
+      <div>
+        <h1>踏月留香枕星</h1>
+        <p>梦想加入枕星</p>
+      </div>
+    </div>
+    <div class="user">
+      <span>欢迎</span>
+    </div>
+  </header>
+
+  <!-- 导航 -->
+  <nav class="nav" id="nav">
+    <button class="active" data-tab="score">积分查询</button>
+    <button data-tab="data">数据查询</button>
+    <button data-tab="member">成员管理</button>
+    <button data-tab="job">职业统计</button>
+    <button data-tab="hall">分堂人员</button>
+    <button data-tab="war">帮战数据</button>
+    <button data-tab="advice">本周建议</button>
+    <button data-tab="rule">帮会规则</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section class="overview">
+    <div class="stat-card">
+      <div class="label">帮会成员</div>
+      <div class="value" id="memberTotal">68</div>
+      <div class="sub" id="memberSub">帮众 58/60 人 · 学徒 10 人</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">铜币数量</div>
+      <div class="value">1.5w–2.5w</div>
+      <div class="sub">拍卖：霸少</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">帮战时间</div>
+      <div class="value">每周六 20:00</div>
+      <div class="sub">提前 10 分钟集合</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">帮会排名</div>
+      <div class="value">丙</div>
+      <div class="sub">本周</div>
+    </div>
+  </section>
+
+  <!-- 1. 积分查询 -->
+  <section class="panel active" id="panel-score">
+    <h2 class="panel-title">积分查询</h2>
+    <div class="form-row">
+      <div class="form-item">
+        <label>游戏id</label>
+        <input type="text" placeholder="请输入游戏id(暂不可用)">
+      </div>
+      <div class="form-item">
+        <label>角色编号</label>
+        <input type="text" placeholder="请输入角色编号(暂不可用)">
+      </div>
+      <button class="btn btn-primary" onclick="handleQuery('积分')">查询</button>
+      <button class="btn btn-ghost" onclick="resetForm(this)">重置</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>游戏id</th><th>职业</th><th>当前积分</th><th>本周积分</th><th>帮战场数</th><th>最近变动</th>
+          </tr>
+        </thead>
+        <tbody id="scoreBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2. 数据查询 -->
+  <section class="panel" id="panel-data">
+    <div class="panel-head">
+      <h2 class="panel-title">数据查询</h2>
+      <span class="panel-hint" id="dataCount">共 68 人</span>
+    </div>
+    <div class="form-row">
+      <div class="form-item">
+        <label>职业</label>
+        <select id="jobFilter">
+          <option>全部职业</option>
+          <option>碎梦</option><option>素问</option><option>血河</option>
+          <option>神相</option><option>九灵</option><option>龙吟</option>
+          <option>铁衣</option><option>潮光</option><option>沧澜</option>
+          <option>鸿音</option><option>玄机</option>
+        </select>
+      </div>
+      <div class="form-item">
+        <label>分堂</label>
+        <select id="hallFilter">
+          <option>全部分堂</option>
+          <option>机动堂</option><option>防守堂</option>
+          <option>进攻堂</option><option>保镖堂</option>
+          <option>帮众</option><option>学徒</option>
+          <option>其他</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="applyDataFilter()">查询</button>
+      <button class="btn btn-ghost" onclick="resetDataFilter(this)">重置</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>游戏id</th><th>职业</th><th>分堂</th><th>战力</th><th>等级</th><th>副职业</th><th>入帮时间</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. 成员管理 -->
+  <section class="panel" id="panel-member">
+    <div class="panel-toolbar">
+      <h2 class="panel-title" style="margin-bottom:0">成员管理</h2>
+      <button class="btn btn-primary" onclick="handleAddMember()">添加成员</button>
+    </div>
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead>
+          <tr>
+            <th>游戏id</th><th>职业</th><th>职位</th><th>战力</th><th>等级</th><th>入帮时间</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="memberBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. 职业统计 -->
+  <section class="panel" id="panel-job">
+    <div class="panel-head">
+      <h2 class="panel-title">职业统计</h2>
+      <span class="panel-hint" id="jobHint">占比按在帮 68 人计算</span>
+    </div>
+    <div class="job-summary" id="jobSummary"></div>
+    <div class="bar-list" id="jobList"></div>
+  </section>
+
+  <!-- 5. 分堂人员 -->
+  <section class="panel" id="panel-hall">
+    <div class="panel-head">
+      <h2 class="panel-title">分堂人员</h2>
+      <span class="panel-hint" id="hallHint">4 个分堂 · 68 人</span>
+    </div>
+    <div class="hall-grid" id="hallGrid"></div>
+  </section>
+
+  <!-- 6. 帮战数据 -->
+  <section class="panel" id="panel-war">
+    <div class="panel-head">
+      <h2 class="panel-title">帮战数据</h2>
+      <span class="panel-hint" id="warCount">2026-11-23 · 3 场</span>
+    </div>
+
+    <div id="warListView">
+      <div class="war-filter">
+        <div class="form-item">
+          <label>帮战日期</label>
+          <input type="date" id="warDateInput" value="2026-11-23">
+        </div>
+        <button class="btn btn-primary" onclick="queryWarDate()">查询</button>
+        <button class="btn btn-ghost" onclick="showAllWarDates()">全部日期</button>
+        <div class="war-date-chips" id="warDateChips"></div>
+      </div>
+      <div id="warList"></div>
+    </div>
+
+    <div id="warDetailView" class="hidden">
+      <button class="war-back" type="button" onclick="closeWar()">← 返回帮战列表</button>
+      <div id="warDetailHead"></div>
+      <div class="war-summary" id="warSummary"></div>
+      <div class="war-detail-grid">
+        <div class="war-panel" id="warCompare"></div>
+        <div class="war-panel" id="warMvp"></div>
+      </div>
+      <div class="war-panel war-table-panel">
+        <div class="war-panel-head">
+          <h4>成员数据</h4>
+          <span>点击表头排序</span>
+        </div>
+        <div class="war-team-tabs" id="warTeamTabs"></div>
+        <div class="war-table-wrap">
+          <table class="war-table" id="warTable"></table>
+        </div>
+        <p class="war-note">表格可左右滑动、点击表头排序；资源列均为 0，未展示。数据来自游戏帮战导出。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 本周建议 -->
+  <section class="panel" id="panel-advice">
+    <div class="panel-head">
+      <h2 class="panel-title">本周建议</h2>
+      <span class="panel-hint">来自 可乐不加冰</span>
+    </div>
+
+    <div class="advice-hero">
+      <div class="advice-avatar">可</div>
+      <div>
+        <h3>本周提升清单</h3>
+        <p>按自己的节奏来就好。</p>
+      </div>
+      <span class="advice-count">6 条</span>
+    </div>
+
+    <div class="advice-grid">
+      <article class="advice-item">
+        <span class="advice-idx">01</span>
+        <p>把竞技随便打一下，换竞技商店的最新等的<strong>祝由护臂</strong>，和<strong>增伤衣服</strong></p>
+      </article>
+      <article class="advice-item">
+        <span class="advice-idx">02</span>
+        <p>内功<strong>承影，锻寒芒，破釜，牛头，日月，贯（楚）</strong></p>
+      </article>
+      <article class="advice-item">
+        <span class="advice-idx">03</span>
+        <p>每周竞技箱子刷满，开最新等装备<strong>百炼</strong></p>
+      </article>
+      <article class="advice-item">
+        <span class="advice-idx">04</span>
+        <p>每周燃心刷满最高阶段箱子方便拿<strong>内功胚子</strong></p>
+      </article>
+      <article class="advice-item">
+        <span class="advice-idx">05</span>
+        <p>不想打真人本可以带个亲友刷二人人机给的也是正常装备（需要<strong class="nowrap">179百炼</strong>）</p>
+      </article>
+      <article class="advice-item">
+        <span class="advice-idx">06</span>
+        <p>灵窍有能力可以刷满，<strong>老头+韩飞瑛+</strong>（看情况搭配），<strong class="nowrap">大娘刚需萨迦</strong></p>
+      </article>
+    </div>
+
+    <div class="advice-closing">
+      <strong>不压力</strong>
+      <p>最后祝各位玩的开心！</p>
+    </div>
+  </section>
+
+  <!-- 8. 帮会规则 -->
+  <section class="panel" id="panel-rule">
+    <h2 class="panel-title">帮会规则</h2>
+    <div class="rule-banner">
+      <div class="rule-fact"><span>帮战时间</span><strong>每周六 20:00</strong></div>
+      <div class="rule-fact"><span>铜币拍卖</span><strong>霸少</strong></div>
+      <div class="rule-fact"><span>帮会排名</span><strong>丙</strong></div>
+    </div>
+    <div class="rule-list">
+      <div class="rule-item">
+        <div class="idx">1</div>
+        <div class="rule-body">
+          <h4>入帮要求</h4>
+          <p>入帮需达到指定战力与等级，经管理审核通过；入帮后请及时修改备注。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">2</div>
+        <div class="rule-body">
+          <h4>拍卖状态</h4>
+          <p>帮会拍卖开始后群里@帮主霸少</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">3</div>
+        <div class="rule-body">
+          <h4>帮战与活动</h4>
+          <p>帮战时间为每周六 20:00，联赛及集体活动需按堂主通知准时到场，听从指挥安排；不得擅自离队、挂机。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">4</div>
+        <div class="rule-body">
+          <h4>积分与贡献</h4>
+          <p>积分依据活跃度、贡献统计，定期公示；贡献兑换需向帮主申请，不得转让。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">5</div>
+        <div class="rule-body">
+          <h4>帮会要求</h4>
+          <p>成员之间互相尊重，禁止恶意争吵、刷屏、辱骂或私下拉拢成员；禁止外传帮会内部信息与资源安排。</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">6</div>
+        <div class="rule-body">
+          <h4>积分获取</h4>
+          <p>1111111111111111111111111111111111111111111111（待整理）</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="idx">7</div>
+        <div class="rule-body">
+          <h4>积分消耗与扣除</h4>
+          <p>连续三场未参加未替补的，扣除1积分。挂机或数据表现极其异常胜场扣1积分.累计十分清出帮会</p>
+        </div>
+      </div>
+    </div>
+    <p class="rule-foot">以上规则自公布之日起执行，由帮会管理负责解释与修订。</p>
+  </section>
+
+</div>
+
+<script>
+  /* ============ 帮战数据（来自 3 份 CSV 导出） ============ */
+  var WAR_FIELDS = ['name', 'job', 'kills', 'spring', 'assists', 'playerDamage', 'playerArmor', 'buildingDamage', 'buildingArmor', 'healing', 'taken', 'deaths', 'revive', 'reviveSpring', 'burn'];
+  var BATTLES = [{"id":"20261123-134147","date":"2026-11-23","time":"13:41:47","opponent":"星辰","teams":[{"guild":"枕星","players":[["温茶等月","潮光",8,0,38,1305254,0,12243701,0,141634,6049096,6,15,0,0],["祈穗穗无忧","素问",0,0,176,46238,0,2794,0,25513139,18388746,15,4,0,0],["同罪","碎梦",2,0,26,1038366,0,762535,0,0,3465673,18,0,0,0],["涟霜","素问",0,0,218,19574,0,0,0,54318426,12239119,6,15,0,0],["淼淼","素问",0,0,36,71782,0,276046,0,12608635,8116971,12,5,0,0],["遇槿","鸿音",2,0,27,2700348,347638,22897290,10981305,0,9391563,6,0,0,0],["可乐不加冰","神相",55,3,135,31735208,0,4639817,0,0,16753770,7,0,0,0],["穆九歌","九灵",6,0,142,7182498,0,633576,0,0,13735864,11,0,0,46],["翕影","铁衣",0,0,148,1156304,0,151138,0,109794,34577445,14,0,0,0],["吻禾","素问",0,0,9,0,0,0,0,0,196687,0,0,0,0],["杦桅","铁衣",1,0,215,1630342,0,183888,0,303275,54088022,9,0,0,0],["小符","沧澜",1,0,18,747742,0,21133773,0,0,11065304,9,0,0,0],["夜梦菱","沧澜",5,0,85,8895611,0,2370052,0,0,27555076,12,0,0,0],["陌青辞","九灵",2,0,136,6311899,0,2177955,0,0,16833076,10,0,0,39],["山遥","龙吟",8,0,29,4847762,0,16794027,0,0,9564800,9,0,0,0],["冷水","龙吟",25,2,95,15066338,0,464390,0,0,8392973,8,0,0,0],["生活嚼嚼者","九灵",1,0,35,1976516,0,6559731,0,0,7053399,10,0,0,12],["游龙清影","潮光",1,0,96,4273528,0,1400304,0,270938,13659144,15,12,0,0],["小於","碎梦",11,0,82,8483327,0,511058,0,0,16558297,10,0,0,0],["星眠丷","血河",22,0,89,15220201,0,1745064,0,1896524,19834708,10,0,0,0],["苏却","血河",10,0,18,2811821,0,10237391,0,1137814,9630689,9,0,0,0],["沈珺槐","素问",0,0,33,4052,0,26069,0,12623179,5615945,6,6,0,0],["断忧离","潮光",3,0,96,3994570,0,1017070,0,0,13184904,14,0,0,0],["溯沉","神相",21,0,99,12676298,0,1437753,0,0,10218234,11,0,0,0],["引姒","九灵",0,0,14,590696,0,11371284,0,0,7937012,7,0,0,0],["梵否","玄机",14,1,107,7955679,0,849265,0,0,6723084,12,0,0,0],["名字38956001138","素问",0,0,193,106580,0,14830,0,27450201,19880207,8,10,0,0],["夜色站歌","铁衣",24,3,171,21826475,0,488830,0,0,31411886,22,0,0,0],["我屮","鸿音",0,0,139,37776,0,4942,0,18665537,26752444,8,7,0,0],["千决","神相",16,1,128,25074613,0,2555192,0,0,20405686,14,0,0,0],["谢璇玑","素问",0,0,207,37462,0,0,0,28187459,24494276,16,12,0,0],["风羲和","沧澜",12,0,88,10420102,0,1825525,0,0,26296803,19,0,0,0],["池阔云水","素问",0,0,220,40767,0,3930,0,23819298,28883625,13,14,0,0],["酥泠","沧澜",0,0,17,438160,0,13553653,0,0,7534043,11,0,0,0],["箫月","铁衣",0,0,0,0,0,0,0,0,0,0,0,0,0],["小仁","玄机",0,0,13,674606,0,27025226,0,0,4571347,5,0,0,0],["暮璃樱","九灵",17,2,112,9345807,0,2007668,0,0,19930748,12,0,0,26],["南宫谕尘","九灵",10,0,100,8162316,0,294758,0,0,21554853,8,0,0,19],["魏苡茉","鸿音",7,0,119,6784716,0,1782814,0,94396,11410524,6,0,0,0],["陈述","鸿音",22,0,98,11594106,3597518,1900364,1204124,0,21379160,11,0,0,0],["霸少","龙吟",10,0,136,14610254,0,1281072,0,0,14820507,10,0,0,0],["安云景","鸿音",0,0,203,16811,0,4441,0,14986821,28205942,7,7,0,0],["知鸢","九灵",1,0,61,2258803,0,1448751,0,0,15755132,20,0,0,11],["芊橙","素问",0,0,229,32812,0,384,0,18567811,12037180,8,0,0,0]]},{"guild":"星辰","players":[["方笑古","鸿音",1,0,50,1972536,1258678,1765470,0,5021,8429870,6,0,0,0],["江临屿","沧澜",4,0,31,1894006,0,49306307,0,0,14510343,3,0,0,0],["酩译","素问",0,0,295,4215,0,869,0,44268392,15661695,6,10,0,0],["白鶴","潮光",6,0,50,2196349,0,194243,0,45168,3220925,3,3,0,0],["我的祺宝","龙吟",0,0,0,0,0,0,0,0,0,0,0,0,0],["啊阿暖","潮光",1,0,17,608973,0,2632940,0,41735,3738629,10,4,0,0],["穆欣月","沧澜",3,0,45,3223766,0,21000491,0,0,11466570,9,0,0,0],["知焕","神相",29,1,217,37286578,0,2104295,0,0,18180142,3,0,0,0],["铃铃","素问",0,0,314,8086,0,527,0,29354353,17271817,3,10,0,0],["陌言","碎梦",15,2,108,9926074,0,513303,0,0,12828239,6,0,0,0],["素月柳熙","神相",8,0,89,7777956,0,14206560,0,0,9065408,4,0,0,0],["殊特","龙吟",32,1,209,34712141,0,1431389,0,0,21174938,6,0,0,0],["维恋","龙吟",0,0,0,0,0,0,0,0,20123,0,0,0,0],["稚薇","龙吟",23,1,128,17087821,0,2251246,0,0,18010418,10,0,0,0],["奶弟","碎梦",2,0,31,661621,0,15441450,0,0,3289439,10,0,0,0],["符昼","鸿音",0,0,302,36793,0,4596,0,15590389,23614484,6,8,0,0],["蓝溪","素问",0,0,190,1225,0,364,0,5935414,8849074,13,6,0,0],["冰焰","碎梦",3,0,43,1680026,0,35024137,0,0,5850879,7,0,0,0],["祺祺","素问",0,0,115,3077,0,27245,0,14240441,8810459,9,7,0,0],["此心可鉴","素问",0,0,238,64252,0,24225,0,13289110,17562888,11,0,0,0],["彼泪","沧澜",5,0,43,2134678,0,30065452,0,0,13596334,5,0,0,0],["花不尽","玄机",3,0,42,3867902,0,40020326,0,0,5544866,5,0,0,0],["想当小趴菜","铁衣",3,0,91,982678,0,3432398,0,33603,25970118,6,0,0,0],["絨糕","潮光",17,0,209,12472445,0,4207029,0,81834,12334868,3,6,0,0],["好豆","鸿音",0,0,228,3144,0,0,0,15275342,17642866,3,8,0,0],["千冶","素问",0,0,202,19092,0,2093,0,26503210,15173942,5,10,0,0],["吻花","神相",32,3,196,29500078,0,2818018,0,0,18750057,10,0,0,0],["杨君陌","神相",4,1,39,1913274,0,23174321,0,0,4426838,5,0,0,0],["碎韵","碎梦",19,1,129,11932301,0,499589,0,0,13103957,12,0,0,0],["铁锅焖面","血河",32,1,92,15179449,0,3614894,0,1758733,15206871,11,0,0,0],["蜗居","九灵",3,0,106,1515231,0,4082218,0,0,6247877,5,0,0,55],["沅汐","血河",33,3,95,18723554,0,96223,0,3892660,22017042,14,0,0,0],["祈枂","神相",13,1,178,14782841,0,2553022,0,0,15649443,5,0,0,0],["扬了你的骨灰","九灵",12,2,109,10202553,0,6699045,0,0,18024980,5,0,0,0],["菟昼","素问",0,0,272,9762,0,3683,0,15311666,10953860,8,5,0,0],["宴时庭","九灵",6,2,200,9385530,0,1774404,0,0,13939239,6,0,0,66],["九日","碎梦",41,3,79,8757362,0,3761821,0,0,11089324,15,0,0,0],["特乖","玄机",19,1,133,10000164,0,4420265,0,0,15829807,2,0,0,0],["栀落辞晚星","潮光",1,0,80,3788441,0,2078133,0,0,8994671,16,0,0,0],["月无穷丶","九灵",34,1,198,15920957,0,5971421,0,0,26324439,11,0,0,58],["疏痴香","血河",26,2,89,11602762,0,423003,0,2645727,19191280,13,0,0,0],["墨吟","鸿音",0,0,267,1475,0,994,0,14714402,14546499,7,6,0,0],["野行","铁衣",1,0,85,599708,0,715053,0,49880,22905655,9,0,0,0],["夏鸢雪","龙吟",1,0,47,2049588,0,3350986,0,0,6802970,10,0,0,0],["祈叶安","鸿音",0,0,1,102581,0,0,0,0,522214,2,0,0,0],["欲血","鸿音",17,1,118,9960564,2704825,11371788,14298237,0,11238701,6,0,0,0]]}]},{"id":"20261123-134205","date":"2026-11-23","time":"13:42:05","opponent":"液体猫♡","teams":[{"guild":"枕星","players":[["温茶等月","潮光",5,0,38,2914083,0,1897147,0,0,4314926,6,0,0,0],["祈穗穗无忧","素问",0,0,0,0,0,0,0,0,0,0,0,0,0],["同罪","碎梦",3,0,23,1224108,0,428730,0,0,4099841,17,0,0,0],["涟霜","素问",0,0,125,20701,0,0,0,40036759,11765706,4,7,0,0],["淼淼","素问",0,0,98,62447,0,31879,0,12161447,8772505,10,2,0,0],["可乐不加冰","神相",26,6,84,24828469,0,0,0,0,9563312,1,0,0,0],["酥泠","沧澜",0,1,23,2446195,0,919194,0,0,7585528,11,0,0,0],["引姒","九灵",3,1,29,3183140,0,2056728,0,0,6658120,11,0,0,0],["安云景","鸿音",0,0,105,20703,0,0,0,6852483,19769973,11,6,0,0],["翕影","铁衣",0,0,82,916778,0,0,0,37698,22459989,12,0,0,0],["芊橙","素问",0,0,135,15994,0,0,0,12410998,6931988,3,1,0,0],["杦桅","铁衣",0,0,97,858985,0,0,0,288962,33117673,6,0,0,0],["小仁","玄机",4,0,30,3118962,0,2889062,0,0,4828153,9,0,0,0],["小符","沧澜",7,0,33,4250485,0,1823083,0,0,11131484,7,0,0,0],["夜梦菱","沧澜",1,1,34,4912399,0,1972189,0,0,14703796,15,0,0,0],["夜色站歌","神相",14,2,47,21610820,0,0,0,0,16738720,17,0,0,0],["陌青辞","九灵",3,0,98,4494165,0,0,0,0,11486494,7,0,0,29],["千决","神相",8,0,52,9672725,0,2670918,0,0,7453047,7,0,0,0],["冷水","龙吟",9,3,93,10651134,0,0,0,0,7504437,6,0,0,0],["生活嚼嚼者","九灵",2,0,53,3346272,0,292672,0,0,7450245,9,0,0,7],["游龙清影","潮光",1,1,46,1980225,0,0,0,127222,7682172,14,6,0,0],["名字38956001138","素问",0,0,108,80244,0,0,0,15983828,14989008,12,7,0,0],["星眠丷","血河",6,0,22,7118549,0,0,0,763740,8747846,11,0,0,0],["苏却","血河",9,2,34,6448607,0,457345,0,1445434,11790048,11,0,0,0],["知鸢","九灵",0,1,58,1615458,0,416041,0,0,9801496,10,0,0,22],["沈珺槐","素问",0,0,77,2180,0,1728,0,9641386,9787748,7,5,0,0],["小於","碎梦",8,3,44,5396292,0,0,0,0,15831723,7,0,0,0],["溯沉","神相",6,0,58,10913375,0,0,0,0,7507839,8,0,0,0],["遇槿","鸿音",6,1,70,6144064,1302058,2601148,1647685,0,8509284,5,0,0,0],["梵否","玄机",6,1,65,7272874,0,0,0,0,9104222,4,0,0,0],["我屮","鸿音",0,0,101,26752,0,0,0,11078957,19085613,11,3,0,0],["穆九歌","九灵",6,2,80,7104389,0,0,0,0,11962100,7,0,0,27],["谢璇玑","素问",0,0,126,16785,0,0,0,20287089,15481891,8,6,0,0],["风羲和","沧澜",5,0,51,6952382,0,0,0,0,20303996,19,0,0,0],["山遥","龙吟",13,0,76,11475251,0,1455407,0,0,10715622,8,0,0,0],["南宫谕尘","九灵",4,1,45,4515223,0,0,0,0,11781627,13,0,0,3],["暮璃樱","九灵",12,2,57,8667041,0,0,0,0,22136853,11,0,0,16],["陈述","鸿音",7,1,46,4746165,1089804,876107,0,0,10519193,7,0,0,0],["霸少","素问",0,0,134,0,0,0,0,30177532,17989405,4,3,0,0],["断忧离","潮光",3,0,37,1318255,0,349,0,0,5045072,13,4,0,0],["池阔云水","素问",0,0,101,27784,0,2857,0,10770341,12922125,11,8,0,0]]},{"guild":"液体猫♡","players":[["新桃","铁衣",0,0,89,1104560,0,1459791,0,15637,32829990,1,0,0,0],["乖乖乖乖乖乖乖","沧澜",4,0,18,1853060,0,20441437,0,0,6822075,8,0,0,0],["眠梦","九灵",10,0,138,7244074,0,3271121,0,0,11460129,4,0,0,54],["破谶","九灵",27,0,137,11682179,0,2560171,0,0,16295265,3,0,0,39],["仿真","鸿音",0,0,183,45920,0,12499,0,5250781,17172857,1,1,0,0],["神圣","潮光",5,1,64,3581817,0,30710619,0,52008,6600602,0,4,0,0],["心柔柔","沧澜",5,0,38,2217457,0,24935294,0,0,11897094,1,0,0,0],["清心","碎梦",8,0,66,5865408,0,1039910,0,0,6332143,3,0,0,0],["宗弥","鸿音",0,0,144,0,0,0,0,7432584,6791680,0,0,0,0],["星星球","素问",0,0,176,0,0,0,0,9269874,4727225,0,3,0,0],["一口三只菇","沧澜",5,0,49,3131233,0,32110707,0,0,7365763,1,0,0,0],["晚星沉","神相",27,1,107,22839980,0,4621678,0,0,9891710,5,0,0,0],["千钧丶","龙吟",4,0,128,6026558,0,29908187,0,0,10301931,3,0,0,0],["江曦宁","素问",0,0,187,9241,0,14798,0,14710883,6509343,5,1,0,0],["绝响","素问",0,0,222,112675,0,19958,0,12539136,5794762,0,4,0,0],["超级对对碰","鸿音",0,0,214,47681,0,9001,0,12842290,10285763,0,2,0,0],["清溪溪溪溪","鸿音",3,1,22,1329714,863112,9225178,840491,0,3611168,3,0,0,0],["金魚草","沧澜",1,0,8,622815,0,18135665,0,0,5255964,4,0,0,0],["雷痕","血河",10,0,43,4222817,0,2029142,0,1050936,9466919,9,0,0,0],["云泽鹿","玄机",7,0,57,4353792,0,5436216,0,0,9552450,4,0,0,0],["将军","龙吟",12,0,92,5557222,0,31127213,0,0,7801892,2,0,0,0],["海宁知了","素问",0,0,181,576,0,53169,0,10528138,8342729,0,5,0,0],["万花霜灭","鸿音",1,0,27,1194618,599213,9368622,7620418,0,5771789,4,0,0,0],["曾经","龙吟",17,0,88,9460935,0,13460873,0,0,10070733,5,0,0,0],["焱音","潮光",9,0,74,5150540,0,14690872,0,96691,6455926,0,6,0,0],["游昭雪","素问",0,0,173,7146,0,16501,0,6124144,4810456,2,2,0,0],["适当","铁衣",2,0,38,426798,0,4176036,0,15141,12697125,1,0,0,0],["月昼","素问",0,0,248,93335,0,10433,0,19739669,7637759,2,5,0,0],["入机","九灵",6,0,122,5459289,0,1862726,0,0,10315363,7,0,0,43],["陈添祥","鸿音",11,1,45,6185353,925480,8940053,9034468,0,9613306,5,0,0,0],["索求","鸿音",7,0,72,2812064,591374,13684700,6735403,0,6385477,7,0,0,0],["忧郁方便面","血河",17,0,52,12488960,0,1118379,0,1257181,13934807,9,0,0,0],["述泪","铁衣",2,0,73,1465700,0,2756820,0,42077,29570621,5,0,0,0],["衔玉","潮光",5,0,99,6705168,0,2556775,0,196360,7108200,7,5,0,0],["不及渔舟唱晚","素问",0,0,197,4751,0,0,0,7176898,6605358,2,4,0,0],["天使泣","碎梦",10,0,72,6772069,0,842521,0,0,11460092,6,0,0,0],["开头","神相",27,2,133,11233373,0,7593949,0,0,10710643,2,0,0,0],["如梦做泡影","鸿音",0,0,142,0,0,667,0,5323327,10848409,1,2,0,0],["噜噜晓","铁衣",1,0,74,969099,0,4992725,0,0,16946413,2,0,0,0],["原配","潮光",9,0,130,7896861,0,2600441,0,222805,9941574,1,12,0,0],["櫻眠","素问",0,0,266,48945,0,15827,0,14904707,6994126,3,7,0,0],["乌药","碎梦",15,0,53,5214910,0,866997,0,0,7207562,5,0,0,0],["要哥哥哄吗","沧澜",4,0,43,2364074,0,19683983,0,0,13673885,1,0,0,0],["雪见草","潮光",4,0,83,2646334,0,35802435,0,0,6177614,0,1,0,0],["潇依依","鸿音",9,0,89,4246834,1498200,3109935,10689037,61688,8748657,6,0,0,0],["清欢酒","素问",0,0,173,3608,0,33805,0,7946602,4417707,0,3,0,0],["殷玉阮","沧澜",2,0,51,3261728,0,18481054,0,0,15855237,2,0,0,0],["沈微风","九灵",12,0,142,7252486,0,3644169,0,0,14492383,3,0,0,56],["烬冰","龙吟",13,0,80,4713818,0,32617938,0,0,6185387,3,0,0,0],["罄宝","潮光",5,0,60,2788618,0,14760860,0,5011,7723947,0,2,0,0],["沈知衍","铁衣",0,0,69,542227,0,1960865,0,3534,13022900,1,0,0,0],["小昔涟温世离","鸿音",16,2,131,12910792,2947577,3906509,44413,0,11206876,2,0,0,0],["闻黎","神相",15,1,99,14150508,0,4069406,0,0,7647382,3,0,0,0],["漓熠亭","九灵",6,1,122,4034158,0,3688818,0,0,9926835,6,0,0,37],["踏月留臭","血河",1,0,37,2649925,0,594747,0,522980,10414997,10,0,0,0],["极光","碎梦",14,0,55,5945061,0,444486,0,0,7522860,6,0,0,0],["这颗心为你殉情","素问",0,0,267,113469,0,12499,0,19032221,7973472,2,5,0,0]]}]},{"id":"20261123-134213","date":"2026-11-23","time":"13:42:13","opponent":"墨染琼浆","teams":[{"guild":"枕星","players":[["温茶等月","潮光",0,0,11,495511,0,6163731,0,0,4125743,7,4,0,0],["祈穗穗无忧","素问",0,0,222,78176,0,0,0,27659828,21058360,11,5,0,0],["涟霜","素问",0,0,224,48648,0,0,0,50578738,22164402,2,15,0,0],["淼淼","素问",0,0,239,105031,0,0,0,25483136,22621717,7,7,0,0],["遇槿","鸿音",6,0,24,2611586,326594,16525722,8347479,0,7076341,7,0,0,0],["小悲观","沧澜",5,0,26,1454950,0,14259010,0,0,15571943,9,0,0,0],["可乐不加冰","神相",59,7,153,34627840,0,0,0,0,13979036,6,0,0,0],["知汀","九灵",2,0,75,3636609,0,135859,0,0,12837381,28,0,0,15],["引姒","九灵",0,0,19,345360,0,9132783,0,0,5211317,9,0,0,5],["翕影","铁衣",0,1,180,1537234,0,0,0,94598,45633088,14,0,0,0],["杦桅","铁衣",1,0,172,1479409,0,2447,0,71291,52834016,8,0,0,0],["小符","沧澜",2,0,21,900702,0,17809561,0,0,12066888,7,0,0,0],["情川","血河",14,4,54,10235261,0,0,0,876036,12660473,12,0,0,0],["陌青辞","九灵",7,1,130,6079918,0,44004,0,0,18503085,8,0,0,32],["千决","神相",26,4,161,26236115,0,154564,0,0,19243740,13,0,0,0],["冷水","碎梦",28,7,112,11941984,0,192599,0,0,11298926,9,0,0,0],["生活嚼嚼者","九灵",3,0,31,1285673,0,4113238,0,0,6964347,6,0,0,8],["我屮聊扫号","素问",0,0,82,36122,0,93994,0,13180454,11020753,10,4,0,0],["我屮","鸿音",0,0,115,1455,0,0,0,11021998,18613885,11,2,0,0],["星眠丷","血河",22,8,104,20370861,0,0,0,2701575,30941647,9,0,0,0],["苏却","血河",12,0,24,3161803,0,3752660,0,916528,8497525,13,0,0,0],["小仁","玄机",1,0,17,435042,0,23300550,0,0,5021162,7,0,0,0],["沈珺槐","素问",0,0,34,1625,0,12692,0,8663565,3320410,8,4,0,0],["柳玉丝","鸿音",14,0,121,11993986,3474951,79001,0,0,23350270,9,0,0,0],["溯沉","神相",17,7,149,20230646,0,132133,0,0,16835559,12,0,0,0],["梵否","玄机",5,1,39,3611760,0,125254,0,0,6093713,7,0,0,0],["夜梦菱","沧澜",13,2,125,13188269,0,208901,0,0,36072677,16,0,0,0],["酥泠","沧澜",0,0,15,525490,0,14384194,0,0,11665639,7,0,0,0],["叶清芝","鸿音",0,0,226,15240,0,0,0,16057987,27269779,11,0,0,0],["谢璇玑","素问",0,0,241,13682,0,0,0,31149322,26693466,9,12,0,0],["穆九歌","九灵",11,3,149,9918630,0,59161,0,0,21474015,11,0,0,36],["禦魄","玄机",12,3,136,9095855,0,28061,0,0,17304496,9,0,0,0],["知鸢","九灵",0,0,0,0,0,0,0,0,43453,0,0,0,0],["末日","素问",0,0,244,217126,0,0,0,42310787,26780320,6,14,0,0],["南宫谕尘","九灵",12,1,129,10914461,0,168152,0,0,21081712,14,0,0,31],["暮璃樱","九灵",19,5,165,15080832,0,154203,0,0,28900381,13,0,0,35],["同罪","碎梦",4,0,63,2840189,0,63443,0,0,10928347,25,0,0,0],["安云景","鸿音",0,0,0,0,0,0,0,225388,1097972,3,0,0,0],["山遥","龙吟",7,0,36,3055635,0,9775784,0,0,5106452,9,0,0,0],["魏苡茉","鸿音",7,0,86,5451852,0,0,0,15586,8028152,6,0,0,0],["霸少","素问",0,0,235,0,0,0,0,30916149,26916751,4,7,0,0],["心憶","素问",0,0,27,12374,0,10686,0,17112936,12417289,8,5,0,0]]},{"guild":"墨染琼浆","players":[["粉墨","沧澜",28,0,97,18580185,0,2935348,0,0,21670756,12,0,0,0],["心序","九灵",23,0,163,20305706,0,8666672,0,0,15725031,7,0,0,68],["以七","九灵",2,0,51,4310337,0,7814297,0,0,8324780,4,0,0,13],["邻山","铁衣",1,0,162,2716375,0,606987,0,17685,36783042,7,0,0,0],["思念变成花海","铁衣",12,0,144,19799437,0,1937484,0,0,22573963,13,0,0,0],["知一","鸿音",0,0,278,172355,0,166209,0,34396772,26242203,1,11,0,0],["奶咖","素问",0,0,0,0,0,0,0,0,77932,0,0,0,0],["沉谭念尹","玄机",21,0,81,10995868,0,17876738,0,0,9459432,3,0,0,0],["名字6439601138","神相",30,0,144,23165065,0,7889147,0,0,9368582,6,0,0,0],["氺月","鸿音",15,0,113,13230908,3165178,8981602,7974179,0,12882522,7,0,0,0],["玉宛兮","潮光",4,0,66,4249572,0,8654134,0,193915,10920290,7,16,0,0],["白迟落雨","潮光",3,0,70,3402417,0,15343077,0,0,9263348,11,6,0,0],["别吵","铁衣",0,0,0,0,0,0,0,0,40165,0,0,0,0],["妄为","铁衣",0,0,12,0,0,0,0,0,0,0,0,0,0],["摸摸","沧澜",0,0,0,0,0,0,0,0,0,0,0,0,0],["眠眠喵","鸿音",0,0,197,6868,0,0,0,12478470,10873141,2,8,0,0],["不藍","神相",0,0,0,0,0,0,0,0,0,0,0,0,0],["觀復","铁衣",1,0,232,3264508,0,1002539,0,70759,42372159,6,0,0,0],["旮旯给木","碎梦",5,0,17,1858909,0,50799,0,0,1578793,3,0,0,0],["说丸莓","鸿音",0,0,265,0,0,0,0,21213405,30996723,14,7,0,0],["安能信","神相",9,1,97,8120690,0,6616160,0,0,6196524,11,0,0,0],["许你","九灵",2,0,72,2168215,0,7613919,0,0,5061076,4,0,0,15],["天使梦","龙吟",6,0,70,4513913,0,20270102,0,0,7838515,6,0,0,0],["小貓","铁衣",0,0,55,628352,0,1323828,0,400094,16395159,7,0,0,0],["浆果色","素问",0,0,253,16985,0,12312,0,27678085,14868239,2,10,0,0],["玄亓","沧澜",2,0,100,4167784,0,3800768,0,86894,22258854,13,0,0,0],["星词","九灵",20,0,154,11567221,0,7529560,0,0,13846765,6,0,0,69],["俞爱","龙吟",24,0,153,23919142,0,8262957,0,0,30054136,12,0,0,0],["李舜生","血河",3,0,54,2519586,0,735128,0,949397,9145030,7,0,0,0],["木周天","神相",0,0,5,115524,0,180560,0,0,537147,1,0,0,0],["猫渔","铁衣",23,1,111,16682180,0,1822043,0,0,14198634,11,0,0,0],["悸烬","血河",12,1,95,22867215,0,966755,0,3687923,19603657,11,0,0,0],["芙儿","潮光",7,0,78,4077643,0,18404913,0,0,8300291,10,0,0,0],["何夕","潮光",7,0,88,7696149,0,32785038,0,367464,17662493,5,13,0,0],["忻绪","龙吟",17,0,145,16100981,0,8800463,0,0,15782595,6,0,0,0],["洋娃娃","鸿音",0,0,44,0,0,0,0,3102771,7560561,3,0,0,0],["孤浔","龙吟",17,0,77,13596441,0,36240462,0,0,11031826,5,0,0,0],["救赎","龙吟",25,0,141,11549890,0,4273606,0,0,7445073,7,0,0,0],["小沉醉","鸿音",18,1,135,16757637,4748849,4216196,5838946,0,24187099,11,0,0,0],["迟枣","素问",0,0,269,42648,0,12557,0,22998212,15673392,4,7,0,0],["懒宝","潮光",9,0,99,8451876,0,15902294,0,173341,14120886,8,17,0,0],["飞鸿踏雪泥","素问",0,0,238,8137,0,14540,0,15091465,15423035,8,11,0,0],["宇宙无敌霸王龙","血河",1,0,27,1349486,0,3316736,0,458547,4446455,11,0,0,0],["一枝月","素问",0,0,153,34171,0,26426,0,10396291,9393137,6,5,0,0],["名字38332901138","碎梦",14,0,79,7923591,0,1037713,0,0,8798071,12,0,0,0],["蒟蒟","玄机",6,0,105,6050219,0,9398423,0,0,10538230,9,0,0,0],["杰作","潮光",23,0,80,13853129,0,27075134,0,251022,13900788,3,3,0,0],["小宁","碎梦",3,0,44,2637155,0,5258229,0,0,5972431,5,0,0,0],["权贵","素问",0,0,259,28783,0,0,0,23554447,11609755,8,2,0,0],["侧吻","鸿音",0,0,0,0,0,0,0,0,37695,0,0,0,0]]}]}];
+
+  BATTLES.forEach(function (battle) {
+    battle.teams.forEach(function (team) {
+      team.players = team.players.map(function (row) {
+        var player = {};
+        WAR_FIELDS.forEach(function (key, index) { player[key] = row[index]; });
+        return player;
+      });
+    });
+  });
+
+  /* ============ 成员数据（唯一数据源） ============ */
+  var MEMBERS = [
+    { name: '可乐不加冰', job: '神相', role: '四当家', power: 173732, days: 24 },
+    { name: '夜色站歌', job: '铁衣', role: '机动堂众', power: 171493, days: 3 },
+    { name: '冷水', job: '龙吟', role: '机动堂众/军师', power: 170445, days: 106 },
+    { name: '末日', job: '素问', role: '防守堂主', power: 169884, days: 105 },
+    { name: '夜梦菱', job: '沧澜', role: '帮众', power: 169658, days: 30 },
+    { name: '千决', job: '神相', role: '帮众', power: 169288, days: 15 },
+    { name: '时间零', job: '神相', role: '帮众', power: 169158, days: 1 },
+    { name: '谢璇玑', job: '素问', role: '机动堂众', power: 168901, days: 105 },
+    { name: '吻禾', job: '素问', role: '进攻堂众', power: 168568, days: 37 },
+    { name: '小天阳', job: '九灵', role: '帮众', power: 168537, days: 1 },
+    { name: '星眠ゞ', job: '血河', role: '防守堂众', power: 168230, days: 39 },
+    { name: '穆九歌', job: '九灵', role: '防守堂众', power: 168216, days: 106 },
+    { name: '梵否', job: '玄机', role: '机动堂主', power: 167709, days: 105 },
+    { name: '远航心', job: '血河', role: '帮众', power: 167355, days: 1 },
+    { name: '咸鱼灬', job: '铁衣', role: '防守堂众', power: 167133, days: 106 },
+    { name: '榕茈', job: '鸿音', role: '帮众', power: 167034, days: 2 },
+    { name: '小仁', job: '玄机', role: '进攻堂众', power: 167016, days: 45 },
+    { name: '山遥', job: '龙吟', role: '保镖堂主/雅匠', power: 166976, days: 105 },
+    { name: '枕栀', job: '铁衣', role: '防守堂众', power: 166964, days: 106 },
+    { name: '慕璃樱', job: '九灵', role: '机动堂众', power: 166902, days: 106 },
+    { name: '霁悦', job: '素问', role: '机动堂众', power: 166771, days: 1 },
+    { name: '溯沉', job: '神相', role: '三当家/机动堂众', power: 166574, days: 106 },
+    { name: '奕浙', job: '碎梦', role: '防守堂众', power: 166434, days: 105 },
+    { name: '生活嚼嚼者', job: '九灵', role: '保镖堂众', power: 166350, days: 49 },
+    { name: '心憶', job: '素问', role: '帮众', power: 166296, days: 105 },
+    { name: '遇懂', job: '鸿音', role: '进攻堂主', power: 165895, days: 106 },
+    { name: '小於', job: '碎梦', role: '帮众', power: 165863, days: 2 },
+    { name: '霸少', job: '龙吟', role: '大当家', power: 165698, days: 106 },
+    { name: '狂客', job: '素问', role: '帮众', power: 165655, days: 21 },
+    { name: '苏却', job: '血河', role: '保镖堂众', power: 165483, days: 40 },
+    { name: '我中', job: '鸿音', role: '防守堂众', power: 165305, days: 36 },
+    { name: '陈述', job: '鸿音', role: '帮众', power: 164717, days: 3 },
+    { name: '引姒', job: '九灵', role: '进攻堂众', power: 164498, days: 39 },
+    { name: '风羲和', job: '沧澜', role: '帮众', power: 164213, days: 6 },
+    { name: '温茶等月', job: '潮光', role: '进攻堂众', power: 163623, days: 39 },
+    { name: '延桉', job: '素问', role: '帮众', power: 162221, days: 1 },
+    { name: '小符', job: '沧澜', role: '进攻堂众/宴者', power: 162042, days: 106 },
+    { name: '芊怡', job: '鸿音', role: '防守堂众', power: 160714, days: 105 },
+    { name: '京圈', job: '九灵', role: '学徒', power: 158857, days: 105 },
+    { name: '禦魄', job: '玄机', role: '防守堂众', power: 158762, days: 37 },
+    { name: '酥冷', job: '沧澜', role: '进攻副堂主', power: 158610, days: 106 },
+    { name: '淼淼', job: '素问', role: '帮众', power: 156363, days: 18 },
+    { name: '翕影', job: '铁衣', role: '防守堂众', power: 156101, days: 106 },
+    { name: '断忧离', job: '潮光', role: '学徒', power: 155341, days: 2 },
+    { name: '祈穗穗无忧', job: '素问', role: '二当家/保镖堂众', power: 155210, days: 106 },
+    { name: '魏苡茉', job: '鸿音', role: '防守堂众', power: 154874, days: 105 },
+    { name: '云安', job: '龙吟', role: '防守堂众', power: 154687, days: 175 },
+    { name: '知汀', job: '九灵', role: '防守堂众', power: 154134, days: 37 },
+    { name: '陌青辞', job: '九灵', role: '防守堂众', power: 153843, days: 104 },
+    { name: '芊橙', job: '素问', role: '防守副堂主', power: 152737, days: 106 },
+    { name: '池阔云水', job: '素问', role: '防守堂众', power: 151881, days: 42 },
+    { name: '残鸾', job: '血河', role: '帮众', power: 151782, days: 1 },
+    { name: '沈萧燃', job: '神相', role: '防守堂众', power: 151497, days: 39 },
+    { name: '柳玉丝', job: '鸿音', role: '防守堂众', power: 151363, days: 105 },
+    { name: '一拳要你猪命丶', job: '铁衣', role: '学徒', power: 151275, days: 16 },
+    { name: '安云景', job: '鸿音', role: '防守堂众', power: 151189, days: 39 },
+    { name: '游龙清影', job: '潮光', role: '帮众', power: 149307, days: 36 },
+    { name: '御八万', job: '龙吟', role: '学徒', power: 148433, days: 151 },
+    { name: '知鸢', job: '九灵', role: '防守堂众', power: 148030, days: 37 },
+    { name: '枯悸', job: '碎梦', role: '防守堂众', power: 145656, days: 389 },
+    { name: '逆鳞', job: '血河', role: '谋客', power: 143760, days: 56 },
+    { name: '白凤命', job: '龙吟', role: '学徒', power: 143592, days: 106 },
+    { name: '叶清芝', job: '鸿音', role: '学徒', power: 142008, days: 405 },
+    { name: '残誓', job: '沧澜', role: '学徒', power: 140166, days: 62 },
+    { name: '同罪', job: '碎梦', role: '防守堂众', power: 138497, days: 159 },
+    { name: '恶性循环', job: '铁衣', role: '学徒', power: 134853, days: 2 },
+    { name: '小魔', job: '素问', role: '学徒', power: 132658, days: 58 },
+    { name: '箫月', job: '铁衣', role: '学徒', power: 132093, days: 2 }
+  ];
+
+  var JOB_ORDER = ['碎梦', '素问', '血河', '神相', '九灵', '龙吟', '铁衣', '潮光', '沧澜', '鸿音', '玄机'];
+  var HALLS = [
+    { key: '机动', name: '机动堂' },
+    { key: '防守', name: '防守堂' },
+    { key: '进攻', name: '进攻堂' },
+    { key: '保镖', name: '保镖堂' }
+  ];
+  var HALL_LIMIT = 7;
+  var GROUP_LIMIT = 3;
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function pct(count) {
+    return (count / MEMBERS.length * 100).toFixed(1);
+  }
+
+  function hallOf(member) {
+    for (var i = 0; i < HALLS.length; i++) {
+      if (member.role.indexOf(HALLS[i].key) !== -1) return HALLS[i].name;
+    }
+    return null;
+  }
+
+  /* ============ 概览 ============ */
+  function renderOverview() {
+    var apprentices = MEMBERS.filter(function (m) { return m.role.indexOf('学徒') !== -1; }).length;
+    document.getElementById('memberTotal').textContent = MEMBERS.length;
+    document.getElementById('memberSub').textContent =
+      '帮众 ' + (MEMBERS.length - apprentices) + '/60 人 · 学徒 ' + apprentices + ' 人';
+  }
+
+  /* ============ 三张表 ============ */
+  function renderScoreTable() {
+    document.getElementById('scoreBody').innerHTML = MEMBERS.map(function (m) {
+      return '<tr>' +
+        '<td>' + esc(m.name) + '</td>' +
+        '<td><span class="tag">' + esc(m.job) + '</span></td>' +
+        '<td>0</td><td>0</td><td>0</td><td>+0</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderDataTable() {
+    document.getElementById('dataBody').innerHTML = MEMBERS.map(function (m, i) {
+      return '<tr data-index="' + i + '">' +
+        '<td>' + esc(m.name) + '</td>' +
+        '<td>' + esc(m.job) + '</td>' +
+        '<td>' + esc(m.role) + '</td>' +
+        '<td>' + m.power + '</td>' +
+        '<td>99</td>' +
+        '<td>0</td>' +
+        '<td>' + m.days + '天</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderMemberTable() {
+    document.getElementById('memberBody').innerHTML = MEMBERS.map(function (m) {
+      return '<tr>' +
+        '<td>' + esc(m.name) + '</td>' +
+        '<td>' + esc(m.job) + '</td>' +
+        '<td>' + esc(m.role) + '</td>' +
+        '<td>' + m.power + '</td>' +
+        '<td>99</td>' +
+        '<td>' + m.days + '天</td>' +
+        '<td>' +
+          '<button class="link-btn" type="button" onclick="handleMemberAction(\'编辑\', this)">编辑</button>' +
+          '<button class="link-btn danger" type="button" onclick="handleMemberAction(\'移除\', this)">移除</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  /* ============ 职业统计 ============ */
+  function renderJobs() {
+    var counts = {};
+    JOB_ORDER.forEach(function (job) { counts[job] = 0; });
+    MEMBERS.forEach(function (m) { counts[m.job] = (counts[m.job] || 0) + 1; });
+
+    var stats = JOB_ORDER
+      .filter(function (job) { return counts[job] > 0; })
+      .map(function (job) { return [job, counts[job]]; })
+      .sort(function (a, b) {
+        return b[1] - a[1] || JOB_ORDER.indexOf(a[0]) - JOB_ORDER.indexOf(b[0]);
+      });
+
+    var top = stats[0];
+    document.getElementById('jobHint').textContent = '占比按在帮 ' + MEMBERS.length + ' 人计算';
+    document.getElementById('jobSummary').innerHTML =
+      '<div class="job-stat"><div class="k">在帮成员</div><div class="v">' + MEMBERS.length + '<small>人</small></div></div>' +
+      '<div class="job-stat"><div class="k">职业种类</div><div class="v">' + stats.length + '<small>个</small></div></div>' +
+      '<div class="job-stat"><div class="k">人数最多</div><div class="v">' + esc(top[0]) +
+        '<small>' + top[1] + ' 人 · ' + pct(top[1]) + '%</small></div></div>';
+
+    var max = stats[0][1];
+    document.getElementById('jobList').innerHTML = stats.map(function (item, index) {
+      var width = (item[1] / max * 100).toFixed(2);
+      return '<div class="bar-item">' +
+        '<div class="bar-head">' +
+          '<span class="job-name"><em>' + String(index + 1).padStart(2, '0') + '</em>' + esc(item[0]) + '</span>' +
+          '<span class="num"><b>' + item[1] + '</b> 人 · ' + pct(item[1]) + '%</span>' +
+        '</div>' +
+        '<div class="bar-track"><div class="bar-fill" style="width:' + width + '%"></div></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ============ 分堂人员 ============ */
+  function chip(member, extra, lead) {
+    var cls = [];
+    if (lead) cls.push('lead');
+    if (extra) cls.push('extra');
+    return '<span' + (cls.length ? ' class="' + cls.join(' ') + '"' : '') + '>' + esc(member.name) + '</span>';
+  }
+
+  function renderHalls() {
+    var cards = HALLS.map(function (hall) {
+      var all = MEMBERS.filter(function (m) { return hallOf(m) === hall.name; });
+      var master = all.filter(function (m) {
+        return m.role.indexOf('堂主') !== -1 && m.role.indexOf('副堂主') === -1;
+      })[0];
+      var vice = all.filter(function (m) { return m.role.indexOf('副堂主') !== -1; })[0];
+      var leads = [master, vice].filter(Boolean);
+      var ordered = leads.concat(all.filter(function (m) { return leads.indexOf(m) === -1; }));
+
+      var chips = ordered.map(function (m, i) {
+        return chip(m, i >= HALL_LIMIT, leads.indexOf(m) !== -1);
+      }).join('');
+
+      var masterText = master ? '堂主：' + esc(master.name) : '堂主：暂缺';
+      if (vice) masterText += '　副堂主：' + esc(vice.name);
+      var more = ordered.length > HALL_LIMIT
+        ? '<button class="hall-toggle" type="button" data-total="' + ordered.length + '">展开全部（' + ordered.length + ' 人）</button>'
+        : '';
+
+      return '<article class="hall-card" data-hall="' + esc(hall.name) + '">' +
+        '<div class="hall-head"><h3>' + esc(hall.name) + '</h3><span class="count">' + all.length + ' 人</span></div>' +
+        '<div class="master">' + masterText + '</div>' +
+        '<div class="members">' + chips + '</div>' +
+        more +
+      '</article>';
+    }).join('');
+
+    var rest = MEMBERS.filter(function (m) { return !hallOf(m); });
+    var groups = [
+      { label: '帮众', list: rest.filter(function (m) { return m.role === '帮众'; }) },
+      { label: '学徒', list: rest.filter(function (m) { return m.role.indexOf('学徒') !== -1; }) },
+      { label: '管理', list: rest.filter(function (m) {
+        return m.role !== '帮众' && m.role.indexOf('学徒') === -1;
+      }) }
+    ];
+
+    var groupHtml = groups.map(function (group) {
+      var chips = group.list.map(function (m, i) { return chip(m, i >= GROUP_LIMIT, false); }).join('');
+      return '<div class="member-group">' +
+        '<div class="group-label"><span>' + group.label + '</span><span>' + group.list.length + '</span></div>' +
+        '<div class="members">' + chips + '</div>' +
+      '</div>';
+    }).join('');
+
+    cards += '<article class="hall-card hall-card-wide" data-hall="未编堂">' +
+      '<div class="hall-head"><h3>未编堂成员</h3><span class="count">' + rest.length + ' 人</span></div>' +
+      '<div class="master">帮众 ' + groups[0].list.length + ' · 学徒 ' + groups[1].list.length +
+        ' · 管理 ' + groups[2].list.length + '</div>' +
+      '<div class="member-groups">' + groupHtml + '</div>' +
+      '<button class="hall-toggle" type="button" data-total="' + rest.length + '">展开全部（' + rest.length + ' 人）</button>' +
+    '</article>';
+
+    document.getElementById('hallGrid').innerHTML = cards;
+    document.getElementById('hallHint').textContent = HALLS.length + ' 个分堂 · ' + MEMBERS.length + ' 人';
+
+    document.querySelectorAll('.hall-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('.hall-card');
+        var expanded = card.classList.toggle('show-all');
+        btn.textContent = expanded ? '收起' : '展开全部（' + btn.dataset.total + ' 人）';
+      });
+    });
+  }
+
+  /* ============ 数据查询筛选 ============ */
+  function applyDataFilter() {
+    var job = document.getElementById('jobFilter').value;
+    var hall = document.getElementById('hallFilter').value;
+    var visible = 0;
+
+    document.querySelectorAll('#dataBody tr').forEach(function (tr) {
+      var m = MEMBERS[Number(tr.dataset.index)];
+      var memberHall = hallOf(m);
+      var jobOk = job === '全部职业' || m.job === job;
+      var hallOk;
+
+      if (hall === '全部分堂') {
+        hallOk = true;
+      } else if (hall === '帮众') {
+        hallOk = m.role === '帮众';
+      } else if (hall === '学徒') {
+        hallOk = m.role.indexOf('学徒') !== -1;
+      } else if (hall === '其他') {
+        hallOk = !memberHall && m.role !== '帮众' && m.role.indexOf('学徒') === -1;
+      } else {
+        hallOk = memberHall === hall;
+      }
+
+      var show = jobOk && hallOk;
+      tr.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    document.getElementById('dataCount').textContent = '共 ' + visible + ' 人';
+  }
+
+  function resetDataFilter(btn) {
+    btn.closest('.panel').querySelectorAll('select').forEach(function (select) {
+      select.selectedIndex = 0;
+    });
+    applyDataFilter();
+  }
+
+  /* ============ 帮战数据 ============ */
+  var warDateFilter = null;
+  var warSortKey = 'kills';
+  var warSortDir = -1;
+  var currentWarId = null;
+  var currentWarTeam = 0;
+
+  var WAR_METRICS = [
+    { key: 'kills', label: '总击败' },
+    { key: 'assists', label: '总助攻' },
+    { key: 'playerDamage', label: '对玩家伤害' },
+    { key: 'buildingDamage', label: '对建筑伤害' },
+    { key: 'healing', label: '治疗值' },
+    { key: 'deaths', label: '重伤' }
+  ];
+
+  var WAR_COLUMNS = [
+    { key: 'name', label: '玩家', type: 'text' },
+    { key: 'job', label: '职业', type: 'text' },
+    { key: 'kills', label: '击败/清泉', type: 'pair' },
+    { key: 'assists', label: '助攻', type: 'num' },
+    { key: 'playerDamage', label: '对玩家伤害', type: 'num' },
+    { key: 'playerArmor', label: '人伤卸甲', type: 'num' },
+    { key: 'buildingDamage', label: '对建筑伤害', type: 'num' },
+    { key: 'buildingArmor', label: '破塔卸甲', type: 'num' },
+    { key: 'healing', label: '治疗值', type: 'num' },
+    { key: 'taken', label: '承受伤害', type: 'num' },
+    { key: 'deaths', label: '重伤', type: 'num' },
+    { key: 'revive', label: '复活/清泉', type: 'pair' },
+    { key: 'burn', label: '焚骨', type: 'num' }
+  ];
+
+  function warDates() {
+    var counts = {};
+    BATTLES.forEach(function (battle) {
+      counts[battle.date] = (counts[battle.date] || 0) + 1;
+    });
+    return Object.keys(counts).sort().map(function (date) {
+      return { date: date, count: counts[date] };
+    });
+  }
+
+  function fmtNum(value) {
+    var n = Number(value) || 0;
+    if (n >= 100000000) return parseFloat((n / 100000000).toFixed(2)) + '亿';
+    if (n >= 10000) return parseFloat((n / 10000).toFixed(1)) + '万';
+    return n.toLocaleString('zh-CN');
+  }
+
+  function fmtInt(value) {
+    return (Number(value) || 0).toLocaleString('zh-CN');
+  }
+
+  function sumWarTeam(team) {
+    var total = { kills: 0, assists: 0, playerDamage: 0, buildingDamage: 0, healing: 0, taken: 0, deaths: 0, revive: 0 };
+    team.players.forEach(function (player) {
+      total.kills += player.kills;
+      total.assists += player.assists;
+      total.playerDamage += player.playerDamage;
+      total.buildingDamage += player.buildingDamage;
+      total.healing += player.healing;
+      total.taken += player.taken;
+      total.deaths += player.deaths;
+      total.revive += player.revive;
+    });
+    return total;
+  }
+
+  function currentWar() {
+    return BATTLES.filter(function (battle) { return battle.id === currentWarId; })[0];
+  }
+
+  function renderWar() {
+    var dates = warDates();
+    if (!dates.length) return;
+    if (!warDateFilter) warDateFilter = dates[0].date;
+    var input = document.getElementById('warDateInput');
+    if (input) input.value = warDateFilter;
+    renderWarDateChips();
+    renderWarList();
+  }
+
+  function renderWarDateChips() {
+    var host = document.getElementById('warDateChips');
+    if (!host) return;
+    var dates = warDates();
+    if (dates.length <= 1) {
+      host.innerHTML = '';
+      return;
+    }
+    host.innerHTML = dates.map(function (item) {
+      return '<button type="button" class="date-chip' + (warDateFilter === item.date ? ' active' : '') +
+        '" onclick="filterWarDate(\'' + item.date + '\')">' + item.date +
+        '<span>' + item.count + ' 场</span></button>';
+    }).join('');
+  }
+
+  function filterWarDate(date) {
+    warDateFilter = date;
+    var input = document.getElementById('warDateInput');
+    if (input) input.value = date;
+    renderWarDateChips();
+    renderWarList();
+  }
+
+  function queryWarDate() {
+    var input = document.getElementById('warDateInput');
+    warDateFilter = input && input.value ? input.value : null;
+    renderWarDateChips();
+    renderWarList();
+  }
+
+  function showAllWarDates() {
+    warDateFilter = null;
+    var input = document.getElementById('warDateInput');
+    if (input) input.value = '';
+    renderWarDateChips();
+    renderWarList();
+  }
+
+  function renderWarList() {
+    var list = warDateFilter
+      ? BATTLES.filter(function (battle) { return battle.date === warDateFilter; })
+      : BATTLES.slice();
+    var countHint = document.getElementById('warCount');
+    if (countHint) {
+      countHint.textContent = (warDateFilter || '全部日期') + ' · ' + list.length + ' 场';
+    }
+
+    var host = document.getElementById('warList');
+    if (!host) return;
+    if (!list.length) {
+      host.innerHTML = '<div class="war-empty"><strong>该日期暂无帮战数据</strong>换一个日期，或点击“全部日期”查看已有记录。</div>';
+      return;
+    }
+
+    var groups = {};
+    list.forEach(function (battle) {
+      groups[battle.date] = groups[battle.date] || [];
+      groups[battle.date].push(battle);
+    });
+
+    host.innerHTML = Object.keys(groups).sort().map(function (date) {
+      var cards = groups[date].map(function (battle, index) {
+        return warCard(battle, index);
+      }).join('');
+      return '<section class="war-day">' +
+        '<div class="war-day-head"><h3>' + date + '</h3><span>' + groups[date].length + ' 场</span></div>' +
+        '<div class="war-cards">' + cards + '</div>' +
+      '</section>';
+    }).join('');
+  }
+
+  function warCard(battle, index) {
+    var team = battle.teams[0];
+    var opponent = battle.teams[1];
+    var total = sumWarTeam(team);
+    return '<article class="war-card">' +
+      '<div class="war-card-top"><span class="war-time">' + battle.time.slice(0, 5) + '</span>' +
+        '<span class="war-order">第 ' + (index + 1) + ' 场</span></div>' +
+      '<h3>' + esc(team.guild) + ' <em>VS</em> ' + esc(opponent.guild) + '</h3>' +
+      '<p class="war-people">' + team.players.length + ' 人 · ' + opponent.players.length + ' 人</p>' +
+      '<div class="war-card-stats">' +
+        '<div><strong>' + fmtNum(total.kills) + '</strong><span>总击败</span></div>' +
+        '<div><strong>' + fmtNum(total.playerDamage) + '</strong><span>对玩家伤害</span></div>' +
+        '<div><strong>' + fmtNum(total.healing) + '</strong><span>治疗值</span></div>' +
+      '</div>' +
+      '<button class="war-open" type="button" onclick="openWar(\'' + battle.id + '\')">查看详情 <span>→</span></button>' +
+    '</article>';
+  }
+
+  function openWar(id) {
+    currentWarId = id;
+    currentWarTeam = 0;
+    warSortKey = 'kills';
+    warSortDir = -1;
+    document.getElementById('warListView').classList.add('hidden');
+    document.getElementById('warDetailView').classList.remove('hidden');
+    renderWarDetail();
+    var panel = document.getElementById('panel-war');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function closeWar() {
+    currentWarId = null;
+    document.getElementById('warDetailView').classList.add('hidden');
+    document.getElementById('warListView').classList.remove('hidden');
+    renderWarList();
+  }
+
+  function renderWarDetail() {
+    var battle = currentWar();
+    if (!battle) { closeWar(); return; }
+    var team0 = battle.teams[0];
+    var team1 = battle.teams[1];
+    var sameDay = BATTLES.filter(function (item) { return item.date === battle.date; });
+    var index = sameDay.indexOf(battle) + 1;
+
+    document.getElementById('warDetailHead').innerHTML =
+      '<div class="war-detail-head">' +
+        '<div>' +
+          '<div class="war-kicker">' + battle.date + ' ' + battle.time.slice(0, 5) + ' · 第 ' + index + ' 场</div>' +
+          '<h3>' + esc(team0.guild) + ' <em>VS</em> ' + esc(team1.guild) + '</h3>' +
+          '<p>' + esc(team0.guild) + ' ' + team0.players.length + ' 人 · ' + esc(team1.guild) + ' ' + team1.players.length + ' 人</p>' +
+        '</div>' +
+        '<span class="war-detail-badge">本日 ' + sameDay.length + ' 场</span>' +
+      '</div>';
+
+    renderWarSummary(battle);
+    renderWarCompare(battle);
+    renderWarTabs(battle);
+    renderWarMvp(battle);
+    renderWarTable(battle);
+  }
+
+  function renderWarSummary(battle) {
+    var total = sumWarTeam(battle.teams[0]);
+    document.getElementById('warSummary').innerHTML =
+      '<div class="war-summary-label">' + esc(battle.teams[0].guild) + ' · 本场数据</div>' +
+      WAR_METRICS.map(function (metric) {
+        return '<div class="war-sum-item"><span>' + metric.label + '</span><strong>' +
+          fmtNum(total[metric.key]) + '</strong></div>';
+      }).join('');
+  }
+
+  function renderWarCompare(battle) {
+    var a = sumWarTeam(battle.teams[0]);
+    var b = sumWarTeam(battle.teams[1]);
+    var rows = WAR_METRICS.map(function (metric) {
+      var av = a[metric.key];
+      var bv = b[metric.key];
+      var sum = av + bv;
+      var percent = sum ? (av / sum * 100) : 50;
+      return '<div class="war-compare-row">' +
+        '<div class="war-compare-values"><b>' + fmtNum(av) + '</b>' +
+          '<span class="war-metric">' + metric.label + '</span><b>' + fmtNum(bv) + '</b></div>' +
+        '<div class="war-compare-track"><span class="a" style="width:' + percent + '%"></span>' +
+          '<span class="b" style="width:' + (100 - percent) + '%"></span></div>' +
+      '</div>';
+    }).join('');
+
+    document.getElementById('warCompare').innerHTML =
+      '<div class="war-panel-head"><h4>双方数据对比</h4><span>' +
+        esc(battle.teams[0].guild) + ' / ' + esc(battle.teams[1].guild) + '</span></div>' +
+      '<div class="war-legend"><span><i class="a"></i>' + esc(battle.teams[0].guild) + '</span>' +
+        '<span><i class="b"></i>' + esc(battle.teams[1].guild) + '</span></div>' +
+      rows;
+  }
+
+  function renderWarTabs(battle) {
+    document.getElementById('warTeamTabs').innerHTML = battle.teams.map(function (team, index) {
+      return '<button type="button" class="' + (index === currentWarTeam ? 'active' : '') +
+        '" onclick="setWarTeam(' + index + ')">' + esc(team.guild) +
+        '<span>' + team.players.length + ' 人</span></button>';
+    }).join('');
+  }
+
+  function renderWarMvp(battle) {
+    var team = battle.teams[currentWarTeam];
+    var definitions = [
+      { label: '击败王', key: 'kills', format: function (player) { return player.kills + ' 击败'; } },
+      { label: '输出王', key: 'playerDamage', format: function (player) { return fmtNum(player.playerDamage); } },
+      { label: '治疗王', key: 'healing', format: function (player) { return fmtNum(player.healing); } },
+      { label: '承伤王', key: 'taken', format: function (player) { return fmtNum(player.taken); } }
+    ];
+    var rows = definitions.map(function (item) {
+      var top = team.players.slice().sort(function (x, y) { return y[item.key] - x[item.key]; })[0];
+      if (!top) return '';
+      return '<div class="war-mvp-item">' +
+        '<span class="war-mvp-label">' + item.label + '</span>' +
+        '<span class="war-mvp-name">' + esc(top.name) + '</span>' +
+        '<span class="war-mvp-value">' + esc(top.job) + ' · ' + item.format(top) + '</span>' +
+      '</div>';
+    }).join('');
+
+    document.getElementById('warMvp').innerHTML =
+      '<div class="war-panel-head"><h4>本场最佳</h4><span>' + esc(team.guild) + '</span></div>' +
+      '<div class="war-mvp-list">' + rows + '</div>';
+  }
+
+  function renderWarTable(battle) {
+    var team = battle.teams[currentWarTeam];
+    var players = team.players.slice().sort(function (a, b) {
+      var av = a[warSortKey];
+      var bv = b[warSortKey];
+      if (typeof av === 'string') {
+        return warSortDir * av.localeCompare(bv, 'zh-CN');
+      }
+      return warSortDir * ((av || 0) - (bv || 0));
+    });
+
+    var head = WAR_COLUMNS.map(function (column) {
+      var sortable = column.key !== 'name' && column.key !== 'job';
+      var classes = [];
+      if (sortable) classes.push('sortable');
+      if (column.type === 'num' || column.type === 'pair') classes.push('num');
+      var arrow = warSortKey === column.key ? (warSortDir === 1 ? ' ↑' : ' ↓') : '';
+      return '<th' + (classes.length ? ' class="' + classes.join(' ') + '"' : '') +
+        (sortable ? ' onclick="sortWarTable(\'' + column.key + '\')"' : '') + '>' +
+        column.label + arrow + '</th>';
+    }).join('');
+
+    var body = players.map(function (player) {
+      return '<tr>' +
+        '<td>' + esc(player.name) + '</td>' +
+        '<td><span class="tag">' + esc(player.job) + '</span></td>' +
+        '<td class="num">' + player.kills + '/' + player.spring + '</td>' +
+        '<td class="num">' + fmtInt(player.assists) + '</td>' +
+        '<td class="num">' + fmtInt(player.playerDamage) + '</td>' +
+        '<td class="num">' + fmtInt(player.playerArmor) + '</td>' +
+        '<td class="num">' + fmtInt(player.buildingDamage) + '</td>' +
+        '<td class="num">' + fmtInt(player.buildingArmor) + '</td>' +
+        '<td class="num">' + fmtInt(player.healing) + '</td>' +
+        '<td class="num">' + fmtInt(player.taken) + '</td>' +
+        '<td class="num">' + fmtInt(player.deaths) + '</td>' +
+        '<td class="num">' + player.revive + '/' + player.reviveSpring + '</td>' +
+        '<td class="num">' + fmtInt(player.burn) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    document.getElementById('warTable').innerHTML =
+      '<thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody>';
+  }
+
+  function setWarTeam(index) {
+    var battle = currentWar();
+    if (!battle || !battle.teams[index]) return;
+    currentWarTeam = index;
+    renderWarTabs(battle);
+    renderWarMvp(battle);
+    renderWarTable(battle);
+  }
+
+  function sortWarTable(key) {
+    if (warSortKey === key) {
+      warSortDir *= -1;
+    } else {
+      warSortKey = key;
+      warSortDir = -1;
+    }
+    var battle = currentWar();
+    if (battle) renderWarTable(battle);
+  }
+
+  /* ============ 演示交互 ============ */
+  function handleQuery(name) {
+    alert(name + '：请输入查询条件后检索对应数据（演示页面，暂未接入后端）。');
+  }
+
+  function resetForm(btn) {
+    var panel = btn.closest('.panel');
+    panel.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+    panel.querySelectorAll('select').forEach(function (select) { select.selectedIndex = 0; });
+  }
+
+  function handleMemberAction(action, btn) {
+    var name = btn.closest('tr').children[0].textContent;
+    alert('演示页面：' + action + '「' + name + '」暂未接入后端。');
+  }
+
+  function handleAddMember() {
+    alert('演示页面：添加成员暂未接入后端。');
+  }
+
+  /* ============ 导航 ============ */
+  function activateTab(tab, updateHash) {
+    document.querySelectorAll('#nav button').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll('.panel').forEach(function (panel) {
+      panel.classList.toggle('active', panel.id === 'panel-' + tab);
+    });
+    if (updateHash) history.replaceState(null, '', '#' + tab);
+  }
+
+  document.querySelectorAll('#nav button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (btn.dataset.tab === 'war' && currentWarId) closeWar();
+      activateTab(btn.dataset.tab, true);
+    });
+  });
+
+  var warDateInput = document.getElementById('warDateInput');
+  if (warDateInput) warDateInput.addEventListener('change', queryWarDate);
+
+  var initialTab = location.hash.replace('#', '');
+  if (['score', 'data', 'member', 'job', 'hall', 'war', 'advice', 'rule'].indexOf(initialTab) !== -1) {
+    activateTab(initialTab, false);
+  }
+
+  /* 初始化 */
+  renderOverview();
+  renderScoreTable();
+  renderDataTable();
+  renderMemberTable();
+  renderJobs();
+  renderHalls();
+  renderWar();
+</script>
+</body>
+</html>
